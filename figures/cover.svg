@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="350" viewBox="0 0 1200 350" role="img" aria-labelledby="title desc">
+  <title id="title">MAI — Measure drift. Assess reliability.</title>
+  <desc id="desc">A research project on majority-alignment drift in financial multi-agent LLM systems. Paired bars on the right illustrate a distribution changing while its modal choice stays the same; they are conceptual examples.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101d31"/><stop offset="1" stop-color="#172e40"/></linearGradient>
+    <linearGradient id="accent"><stop stop-color="#78dfce"/><stop offset="1" stop-color="#adc8ff"/></linearGradient>
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#d5e6f8" stroke-opacity=".035"/></pattern>
+  </defs>
+  <rect width="1200" height="350" rx="22" fill="url(#bg)"/>
+  <rect width="1200" height="350" rx="22" fill="url(#grid)"/>
+  <rect x="48" y="43" width="5" height="17" rx="2.5" fill="#78dfce"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="67" y="57" fill="#bfd0e2" font-size="13" letter-spacing="2.5">FINANCIAL MULTI-AGENT LLM SYSTEMS</text>
+    <text x="45" y="164" fill="#f4f8fc" font-size="94" font-weight="700" letter-spacing="-5">MAI</text>
+    <circle cx="230" cy="150" r="7" fill="#78dfce"/>
+    <text x="49" y="205" fill="url(#accent)" font-size="27" font-weight="600">Measure drift. Assess reliability.</text>
+    <text x="49" y="241" fill="#aebfd2" font-size="16">Majority Alignment Index · Context-adaptive evaluation</text>
+    <path d="M49 279H604" stroke="#9bb7d2" stroke-opacity=".2"/>
+    <text x="49" y="307" fill="#c2d0df" font-size="13" letter-spacing="1.2">BEHAVIORAL MEASUREMENT</text>
+    <circle cx="278" cy="302" r="2" fill="#78dfce"/>
+    <text x="292" y="307" fill="#c2d0df" font-size="13" letter-spacing="1.2">DECISION RELIABILITY</text>
+    <rect x="714" y="37" width="443" height="277" rx="16" fill="#ffffff" fill-opacity=".025" stroke="#a4c0d9" stroke-opacity=".14"/>
+    <text x="741" y="67" fill="#bdcedf" font-size="12" letter-spacing="1.5">ILLUSTRATIVE DISTRIBUTIONS</text>
+    <path d="M747 232H1128" stroke="#b7cadc" stroke-opacity=".25"/>
+    <g fill="#7897b6">
+      <rect x="766" y="100" width="21" height="132" rx="3"/>
+      <rect x="841" y="184" width="21" height="48" rx="3"/>
+      <rect x="916" y="196" width="21" height="36" rx="3"/>
+      <rect x="991" y="220" width="21" height="12" rx="3"/>
+      <rect x="1066" y="220" width="21" height="12" rx="3"/>
+    </g>
+    <g fill="#78dfce">
+      <rect x="791" y="112" width="21" height="120" rx="3"/>
+      <rect x="866" y="184" width="21" height="48" rx="3"/>
+      <rect x="941" y="196" width="21" height="36" rx="3"/>
+      <rect x="1016" y="208" width="21" height="24" rx="3"/>
+      <rect x="1091" y="220" width="21" height="12" rx="3"/>
+    </g>
+    <g fill="#c6d5e4" font-size="13" text-anchor="middle">
+      <text x="789" y="254">A</text><text x="864" y="254">B</text><text x="939" y="254">C</text><text x="1014" y="254">D</text><text x="1089" y="254">E</text>
+    </g>
+    <rect x="770" y="283" width="9" height="9" rx="2" fill="#7897b6"/>
+    <text x="787" y="291" fill="#b9cbdd" font-size="12">Independent</text>
+    <rect x="940" y="283" width="9" height="9" rx="2" fill="#78dfce"/>
+    <text x="957" y="291" fill="#b9cbdd" font-size="12">After exposure</text>
+  </g>
+</svg>
