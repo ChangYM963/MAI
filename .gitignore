@@ -6,3 +6,5 @@ Thumbs.db
 .env.*
 .venv/
 venv/
+tasks.json
+records.jsonl
