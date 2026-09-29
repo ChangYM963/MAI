@@ -1,6 +1,7 @@
 """Exactly solvable teaching tasks, separate from the study's task set."""
 
 from fractions import Fraction
+import random
 
 from . import FRACTIONS, OPTIONS
 
@@ -38,36 +39,68 @@ def solve_task(task):
     return winners[0]
 
 
-def make_tasks(variants=1):
-    """Create balanced examples: one task per answer position, per type, per variant."""
+def integer_oracle(task):
+    """Independent integer check using x=k/4, with a common factor of 16."""
+    p = {key: int(value) for key, value in task["parameters"].items()}
+    scores = {}
+    for letter, k in zip(OPTIONS, (4, 3, 2, 1, 0)):
+        if task["type"] == "quadratic_utility":
+            scores[letter] = 4 * p["a"] * k - p["b"] * k * k
+        elif task["type"] == "loss_budget":
+            if p["loss"] * k <= 4 * p["budget"]:
+                scores[letter] = p["gain"] * k
+        elif task["type"] == "liquidity_budget":
+            if p["capital"] * (4 - k) >= 4 * p["reserve"]:
+                scores[letter] = p["gain"] * k
+        else:
+            raise ValueError("Unknown task type")
+    best = max(scores.values())
+    winners = [letter for letter, score in scores.items() if score == best]
+    if len(winners) != 1:
+        raise ValueError("Integer oracle found a tie")
+    return winners[0]
+
+
+def make_tasks(variants=1, seed=42):
+    """Balanced random cases; discard ties and duplicate type/parameter pairs.
+
+    Every variant adds five tasks of each family. This implements the paper's
+    task families, but does not claim to recreate its original 60 task records.
+    """
     if variants < 1:
         raise ValueError("variants must be positive")
-    tasks = []
-    fractions = tuple(Fraction(str(x)) for x in FRACTIONS)
-    for variant in range(variants):
-        b = 8 + 4 * variant
-        scale = 80 + 20 * variant
-        for position, fraction in enumerate(fractions):
-            answer = OPTIONS[position]
-            specifications = (
-                ("quadratic_utility", {"a": 2 * b * fraction, "b": b},
-                 f"Choose the investment fraction x that maximizes U(x) = {_number(2 * b * fraction)}x - {b}x²."),
-                ("loss_budget", {"gain": 5 + variant, "loss": scale, "budget": scale * fraction},
-                 f"Choose x to maximize return ({5 + variant})x, subject to stressed loss {scale}x ≤ {_number(scale * fraction)}."),
-                ("liquidity_budget", {"gain": 5 + variant, "capital": scale, "reserve": scale * (1 - fraction)},
-                 f"Choose x to maximize return ({5 + variant})x while retaining cash {scale}(1-x) ≥ {_number(scale * (1 - fraction))}."),
-            )
-            for kind, params, question in specifications:
-                task = {
-                    "id": f"{kind}-v{variant + 1}-{answer}",
-                    "type": kind,
-                    "question": question,
-                    "options": {letter: str(value) for letter, value in zip(OPTIONS, FRACTIONS)},
-                    "parameters": {key: _number(value) for key, value in params.items()},
-                    "answer": answer,
-                    "incorrect_majority": OPTIONS[(position + 1) % len(OPTIONS)],
-                }
-                if solve_task(task) != answer:
-                    raise AssertionError(f"Generator produced an invalid task: {task['id']}")
+    rng, tasks, used = random.Random(seed), [], set()
+    for kind in ("quadratic_utility", "loss_budget", "liquidity_budget"):
+        for index in range(5 * variants):
+            answer = OPTIONS[index % 5]
+            for _ in range(20000):
+                if kind == "quadratic_utility":
+                    params = {"a": rng.randint(-25, 600), "b": rng.randint(20, 400)}
+                    question = f"Choose x to maximize stipulated utility U(x) = {params['a']}x - {params['b']}x²."
+                elif kind == "loss_budget":
+                    params = {"gain": rng.randint(5, 90), "loss": rng.randint(30, 400), "budget": rng.randint(0, 420)}
+                    question = f"Choose x to maximize payoff {params['gain']}x, subject to stress loss {params['loss']}x ≤ {params['budget']}."
+                else:
+                    capital = rng.randint(40, 400)
+                    params = {"gain": rng.randint(5, 90), "capital": capital, "reserve": rng.randint(0, capital)}
+                    question = f"Choose x to maximize payoff {params['gain']}x while retaining cash {capital}(1-x) ≥ {params['reserve']}."
+                fingerprint = (kind, tuple(sorted(params.items())))
+                task = {"type": kind, "parameters": params}
+                try:
+                    optimum = solve_task(task)
+                except ValueError:
+                    continue
+                if optimum != answer or fingerprint in used:
+                    continue
+                if integer_oracle(task) != answer:
+                    raise AssertionError("Independent oracles disagree")
+                used.add(fingerprint)
+                task.update(id=f"{kind}-{index + 1:03d}", question=question,
+                            options={letter: str(value) for letter, value in zip(OPTIONS, FRACTIONS)},
+                            answer=answer, incorrect_majority=rng.choice([letter for letter in OPTIONS if letter != answer]),
+                            provenance="generated reference task", generator_seed=seed)
                 tasks.append(task)
+                break
+            else:
+                raise ValueError("Could not generate a balanced unique task")
     return tasks

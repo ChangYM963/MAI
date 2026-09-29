@@ -1,65 +1,142 @@
-<p align="center"><img src="figures/cover.svg" width="1100" alt="MAI — majority-alignment drift and decision reliability"></p>
+<p align="center"><img src="figures/cover.svg" width="1100" alt="MAI: majority-alignment drift and decision reliability"></p>
 
-<h1 align="center">Majority-Alignment Drift and Reliability in Financial Multi-Agent LLM Systems</h1>
+<h1 align="center">Majority-Alignment Drift and Reliability<br>in Financial Multi-Agent LLM Systems</h1>
 <p align="center"><strong>A Context-Adaptive Evaluation Framework</strong></p>
+<p align="center">Task construction · Two-stage measurement · Three interventions · Four-condition evaluation</p>
+<p align="center"><a href="#quick-start">Quick start</a> · <a href="#framework">Framework</a> · <a href="#paper-results">Paper results</a> · <a href="docs/usage.md">Run your model</a> · <a href="docs/reproducibility.md">Reproducibility</a></p>
 
-<p align="center"><a href="#research-question">Research question</a> · <a href="#method">Method</a> · <a href="#selected-results">Results</a> · <a href="#reference-code">Code</a> · <a href="#scope-and-reproducibility">Scope</a></p>
+When agents see a group opinion, **do their response distributions move toward the majority—and do their decisions remain reliable when that majority is wrong?** This project studies both questions in financial multi-agent LLM systems. It measures movement that a final-choice comparison can miss, evaluates three intervention mechanisms, and separately tests correctness on exactly solvable tasks.
 
-## Research question
+This repository contains the paper's **nine figures**, transcribed result tables, and a runnable Python reference project covering the full evaluation workflow. The offline example needs no API key or third-party package. Chat-completions and local Hugging Face adapters support experiments with real models.
 
-Multi-agent LLM systems often allow decision agents to see one another's answers and revise their own. This interaction can suppress an initially useful independent judgment, especially when the group information is wrong. A final answer alone cannot show every change: the agent may keep the same option while its response distribution moves toward the majority.
+## Framework
 
-This project studies two connected questions:
+[![Overall framework: contextual construction, two-stage measurement, interventions, and reliability evaluation](figures/overall_framework.png)](figures/overall_framework.png)
 
-1. **Behavior:** How far does a decision agent's response distribution move toward the *initial* majority after seeing group information?
-2. **Reliability:** When the majority is incorrect, do agents retain correct initial judgments, and does the system still choose the correct answer?
+**Two complementary evaluation paths.** Contextual financial scenarios measure majority-alignment drift; synthetic tasks with independently checked answers measure decision reliability. Contextual scenarios are not assigned artificial correctness labels.
 
-The paper uses financial decisions as its main setting. It keeps **contextual tasks** (for measuring and controlling drift) separate from **exactly solvable synthetic tasks** (for assessing correctness). A five-function construction pipeline screens, normalizes, rewrites, renders, and quality-checks contextual tasks; these functions are distinct from the decision agents under evaluation.
-
-## Method
-
-### Two-stage majority-alignment measurement
-
-Each task offers five ordered actions, **A–E**, along one decision axis. Agents answer independently first. The option with the highest *mean initial response probability* across agents becomes the reference majority. It is held fixed during the second stage, when agents see group information and answer again. The initial minority group is also held fixed.
-
-For option distribution $p$ and majority option $m$, the **Majority Alignment Index** is
-
-$$
-\operatorname{MAI}(p;m)=\sum_{k\in\{A,B,C,D,E\}}4\left(1-\frac{|r(k)-r(m)|}{\max_j|r(j)-r(m)|}\right)p(k),
-$$
-
-where $r(A)=4,\ldots,r(E)=0$. MAI lies in **[0, 4]**. Its difference between stages, $\Delta\operatorname{MAI}$, is positive when a distribution moves toward the fixed majority reference. We report mean drift among agents in the **initial minority** and the proportion of those agents who actually switch their selected option to that majority. MAI measures ordinal proximity; it is neither a correctness probability nor calibrated confidence.
-
-The contextual analysis estimates distributions from repeated valid responses. In the paper's main pipeline, an agent-specific prior is mixed with empirical frequencies using $\beta=0.35$, with the same prior on both stages. The reference code supports this operation in [`mai/contextual.py`](mai/contextual.py). It also implements the paper's post-processing correction
-
-$$
-\widetilde p^{(1)}=p^{(0)}+(1-\lambda)(p^{(1)}-p^{(0)}),
-$$
-
-which shrinks second-stage drift by construction. The paper also investigates structured control prompts and a lightweight hidden-layer intervention; those model-specific experimental systems are described in the paper but are **not** implemented in this public reference package.
-
-### Four-condition reliability evaluation
-
-For tasks with an explicit correct option, the paper uses the *same initial agent responses* in four subsequent branches. Every branch requires a second answer:
-
-| Condition | External group information | Fixed verification prompt |
+| Step | What happens | Implementation |
 |:--|:--|:--|
-| A | None | No |
-| B | Preset incorrect majority | No |
-| C | None | Yes |
-| D | Preset incorrect majority | Yes |
+| 1. Construct tasks | Screen → normalize → optionally rewrite → render A–E options → quality check | [construction.py](mai/construction.py) |
+| 2. Establish the baseline | Sample independent answers, fix the initial majority/minority, then expose group information | [protocols.py](mai/protocols.py) |
+| 3. Calibrate controls | Select prompt strength and fit a hidden-state risk head using calibration tasks | [pipeline.py](mai/pipeline.py), [interventions.py](mai/interventions.py) |
+| 4. Evaluate held-out tasks | Compare ordinary social exposure, zero/selected-strength prompts, probability correction, and hidden intervention | [contextual.py](mai/contextual.py), [local.py](mai/local.py) |
+| 5. Test reliability | Generate verified tasks; branch A–D from the same initial responses | [tasks.py](mai/tasks.py), [runner.py](mai/runner.py) |
+| 6. Analyze and report | Paired task bootstrap, sign-flip tests, Holm correction, CSV/JSON/HTML reports and file hashes | [statistics.py](mai/statistics.py), [reporting.py](mai/reporting.py) |
 
-The external five-member panel contains **four votes for a preset wrong option and one for the correct option**. It is independent of the evaluated agents' initial answers. The verification prompt asks agents to recheck the stated facts, objective, and constraints; it does not reveal the answer.
+## Quick start
 
-An agent's decision is the unique mode of its valid samples. An invalid response or tied mode means abstention. The system requires a **strict majority of all scheduled agents**, including abstainers in the denominator. Incorrect consensus requires at least **80% of all agents** to select the *same* wrong option. Initial correct-judgment retention measures how many initially correct agents remain correct after the second stage.
+Use **Python 3.9+**, from the repository root:
 
-The main contrasts are **accuracy loss** $\mathrm{Acc}_A-\mathrm{Acc}_B$, **direct recovery** $\mathrm{Acc}_D-\mathrm{Acc}_B$, and **specific protection** $(\mathrm{Acc}_D-\mathrm{Acc}_B)-(\mathrm{Acc}_C-\mathrm{Acc}_A)$. Specific protection subtracts the verification prompt's effect without group information.
+```bash
+git clone https://github.com/ChangYM963/MAI.git
+cd MAI
+python -m mai pipeline --config configs/demo.json --output runs/demo
+```
 
-## Selected results
+Open **`runs/demo/report.html`** in a browser. The command runs all six stages and saves raw responses, calibration decisions, intervention diagnostics, paired inference, and a portable report. Use a new output directory for each run; existing results are never overwritten.
 
-In the initial two-stage validation, the **conditional mean positive drift** and the **Switch Rate** capture different behavior. For example, Qwen Plus has positive drift in 31 of 50 tasks, while only 1.15% of initial-minority agents switch to the majority option:
+The bundled configuration processes **14 illustrative source materials → 12 accepted tasks → 4 calibration + 8 held-out tasks**, and evaluates **15 exactly solvable reliability tasks** under A–D with two repetitions. All response generation and hidden features in this mode are **simulated**. These numbers exercise the software and must not be cited as paper findings. See the [saved example report](examples/output/report.md).
 
-| Model | Positive-drift tasks / 50 | Mean drift in positive tasks | Switch Rate |
+```bash
+# Inspect the workload without calling a model
+python -m mai pipeline --config configs/chat.json --dry-run
+
+# A small hand-worked explanation of MAI
+python -m demo.mai_demo
+
+# Run protocol, oracle, inference, and end-to-end checks
+python -m unittest discover -s tests -v
+python scripts/check_repository.py
+```
+
+### Use a real model
+
+Set `MAI_MODEL`, `MAI_BASE_URL`, and (when needed) `MAI_API_KEY` in your environment, then run:
+
+```bash
+python -m mai pipeline --config configs/chat.json --output runs/chat
+```
+
+For local model generation and hidden-state intervention:
+
+```bash
+pip install -e ".[local]"
+python -m mai pipeline --config configs/local.json --model /path/to/local-model --output runs/local
+```
+
+The local adapter targets decoder-only models exposing `model.layers`, including the Qwen/Mistral/Llama architecture families. Configure a valid **zero-based layer** for your model. See [usage and configuration](docs/usage.md) for PowerShell examples, semantic task construction, generation settings, artifact schemas, and troubleshooting. Real model weights and API credentials are supplied by the user.
+
+## Task construction
+
+[![Five-function contextual task construction pipeline](figures/auto_pipline.png)](figures/auto_pipline.png)
+
+The construction functions preserve the decision target, market facts, and constraints; standardize five ordered options along one axis; record additional assumptions; and route outputs to **accepted / flagged / rejected** sets. These functions are separate from the decision agents being evaluated. The executable example uses structured source fields; an optional semantic mode invokes a configured model for each construction role.
+
+[![Worked example of source material becoming an ordered financial decision task](figures/data.png)](figures/data.png)
+
+See [example materials](examples/materials.json) and the [construction protocol](docs/methodology.md#task-construction). Only accepted tasks enter calibration or evaluation.
+
+## Two-stage measurement
+
+[![Independent response sampling followed by exposure to fixed initial group information](figures/two_stage.png)](figures/two_stage.png)
+
+Agents first answer independently. Their mean initial response distribution determines the majority option **m**. Both this reference and the initial-minority membership stay fixed when agents respond after group exposure.
+
+For ordered actions A–E, with ranks 4, 3, 2, 1, 0:
+
+```math
+w_k(m)=4\left(1-\frac{|r(k)-r(m)|}{\max_j |r(j)-r(m)|}\right)
+```
+
+```math
+\mathrm{MAI}(p;m)=\sum_{k\in\{A,B,C,D,E\}} w_k(m)p(k)
+```
+
+**MAI ranges from 0 to 4.** Positive ΔMAI means movement toward the fixed reference. It measures ordinal proximity, not correctness or calibrated confidence. We report signed drift **D**, positive-drift burden **H+**, positive-drift proportion, conditional mean positive drift, and minority-to-majority switches.
+
+Contextual distributions mix valid response frequencies with a fixed agent prior at β = 0.35. Reliability tasks instead use empirical frequencies with strict validity rules. See [metric definitions and denominators](docs/methodology.md).
+
+## Three intervention mechanisms
+
+| Intervention | Mechanism | Evaluation baseline |
+|:--|:--|:--|
+| Structured prompt | Select strength from 0, 0.2, …, 1 on calibration tasks; evaluate on held-out tasks | Both ordinary social exposure and the zero-strength structured prompt |
+| Probability correction | Move the second-stage distribution toward its initial distribution | The same uncorrected samples |
+| Hidden-state intervention | Calibrate a drift direction and risk head; gate an update to the selected decoder block | The same social prompt; untriggered outputs are retained |
+
+Probability correction uses:
+
+```math
+\widetilde p^{(1)}=p^{(0)}+(1-\lambda)(p^{(1)}-p^{(0)})
+```
+
+With λ = 0.6, ΔMAI becomes **0.4 times** its uncorrected value by construction. This algebraic reduction is not evidence of learned reasoning improvement.
+
+The local hidden adapter applies the calibrated update at the final token position of the target decoder block during regeneration. The portable reference risk head is **logistic regression**; the original model-specific experiments used an MLP. [Implementation details](docs/methodology.md#hidden-state-intervention) describe that distinction and the trigger audit.
+
+## Four-condition reliability evaluation
+
+| Condition | External group information | Verification prompt |
+|:--|:--|:--|
+| **A** | None | No |
+| **B** | Preset incorrect majority | No |
+| **C** | None | Yes |
+| **D** | Preset incorrect majority | Yes |
+
+Every condition requires a second response and shares the **same initial answers**. An independent panel supplies four votes for a preset wrong option and one for the correct option. Correctness labels are never disclosed in prompts. The verification instruction asks agents to check facts, objectives, and constraints.
+
+The three task families are quadratic utility, loss budget, and liquidity budget. Every generated answer is checked by a rational-arithmetic solver and an independent integer-arithmetic oracle. Correct option positions are balanced; ties and duplicate cases are excluded.
+
+**Decision rules:** any malformed sample or tied sample mode causes agent abstention; system accuracy requires a strict majority of all scheduled agents, including abstainers. Incorrect consensus means at least 80% choose the same wrong option. Correct-judgment retention pools retained-correct counts over initially correct counts.
+
+## Paper results
+
+The tables and figures below come from the paper, **not the simulator**. [Results and provenance](docs/results.md) provide confidence intervals, comparison baselines, and source-table identifiers. Machine-readable aggregates are in [data/paper](data/paper/README.md).
+
+### 1. Majority alignment can occur without a choice switch
+
+| Model | Positive-drift tasks / 50 | Conditional mean positive drift | Switch rate |
 |:--|--:|--:|--:|
 | Qwen Plus | 31 | 0.1327 | 1.15% |
 | DeepSeek-v3 | 31 | 0.0922 | 1.29% |
@@ -69,83 +146,68 @@ In the initial two-stage validation, the **conditional mean positive drift** and
 | Mistral-7B | 33 | 0.1531 | 6.05% |
 | Llama-3.1-8B | 24 | 0.2141 | 6.21% |
 
-Positive drift uses the paper's strict $\varepsilon=0$ criterion in this table; extremely small floating-point changes can affect the counts. Doubao has aggregate point estimates only. The paper separately reports scenario and template resampling to evaluate uncertainty.
+This table uses the paper's strict positive threshold ε = 0; numerical near-zero changes can affect counts. Doubao has aggregate point estimates only. Qwen Plus illustrates the difference: 31 scenarios show positive distributional drift, while only 1.15% of initial-minority agents switch their chosen option to the majority.
 
-The paper's reliability experiment used 60 exactly solvable tasks per model (20 each of quadratic utility, loss budget, and liquidity budget), two repetitions per task, five agents, and three samples per agent per stage. Models and decoding protocols are analyzed separately. The table reports **system accuracy**:
+[![Initial validation: signed drift, conditional positive drift, and positive-drift prevalence](figures/herd_validation.png)](figures/herd_validation.png)
 
-| Model | A: no group | B: wrong majority | D: wrong majority + verification |
-|:--|--:|--:|--:|
-| Qwen2.5-7B | 21.67% | 0.00% | 2.50% |
-| Mistral-7B | 19.17% | 10.83% | 13.33% |
-| Llama-3.1-8B | 17.50% | 8.33% | 10.00% |
+### 2. Intervention effects depend on model and baseline
 
-Qwen's 21.7-percentage-point A–B loss remains supported after the paper's joint Holm correction. The other two losses do not pass that joint correction. Verification improves accuracy under the incorrect majority by only about 1.7–2.5 percentage points; no model has a statistically supported **specific-protection** effect after the specified correction. The paper uses task-level paired inference; the small reference code below reports point estimates only.
+[![External interventions: changes in positive drift magnitude and prevalence](figures/external_control.png)](figures/external_control.png)
 
-The paper compares three ways to control drift: structured prompts, post-processing probability correction, and lightweight hidden-layer intervention. With $\lambda=0.6$, post-processing makes drift 0.4 times the uncorrected value by construction; it should not be interpreted as an independently learned improvement. Stronger prompts do not produce consistent gains across models. Hidden-layer responses also vary by model, layer, and trigger setting.
+Qwen Plus's selected prompt reduces conditional positive drift from **0.1274 to 0.0083** relative to the shared baseline on 30 held-out tasks. However, its incremental gain over the **zero-strength structured prompt** is not clearly supported. Increasing prompt strength does not consistently improve all models; Qwen2.5-7B's positive-drift burden increases in the corresponding held-out comparison.
 
-<p align="center"><a href="figures/reliability_main.png"><img src="figures/reliability_main.png" width="1000" alt="System accuracy, accuracy loss, and verification effects with uncertainty intervals"></a></p>
+[![Internal interventions: model-dependent drift changes and trigger outcomes](figures/internal_control.png)](figures/internal_control.png)
 
-<details>
-<summary><strong>Distributional drift across models</strong></summary>
+Hidden interventions vary by model, layer, and trigger settings. A trigger need not change the response distribution, and a reduced behavioral drift measure alone does not establish improved accuracy.
 
-<p align="center"><a href="figures/herd_validation.png"><img src="figures/herd_validation.png" width="1000" alt="Signed and positive majority-alignment drift across models"></a></p>
+### 3. A wrong majority can reduce system accuracy
 
-Drift magnitude and prevalence differ across models. Doubao has aggregate point estimates only. A smaller drift measure alone does not establish improved decision accuracy.
-</details>
+System accuracy (%); 60 tasks/model, 5 agents, 3 samples/stage, 2 repetitions:
 
-<details>
-<summary><strong>Incorrect consensus, retention, and abstention</strong></summary>
+| Model | A: no group | B: wrong majority | C: verification | D: wrong majority + verification |
+|:--|--:|--:|--:|--:|
+| Qwen2.5-7B | 21.67 | 0.00 | 22.50 | 2.50 |
+| Mistral-7B | 19.17 | 10.83 | 22.50 | 13.33 |
+| Llama-3.1-8B | 17.50 | 8.33 | 9.17 | 10.00 |
 
-<p align="center"><a href="figures/reliability_auxiliary.png"><img src="figures/reliability_auxiliary.png" width="1000" alt="Incorrect consensus, correct-judgment retention, and abstention by condition"></a></p>
+[![Four-condition reliability: accuracy, degradation, prompt components, and specific protection](figures/reliability_main.png)](figures/reliability_main.png)
 
-For Llama, verification reduces incorrect consensus but also lowers retention of initially correct judgments and increases abstention; accuracy recovers only slightly. Outcome measures must accompany behavioral drift.
-</details>
+Qwen's **21.7 percentage-point A–B loss** remains supported after the paper's joint Holm correction. The other two losses do not pass that joint correction. Verification recovers only about **1.7–2.5 percentage points** under the wrong majority; no model has a supported specific-protection effect under the specified correction. Specific protection is `(D − B) − (C − A)`.
 
-## Reference code
+[![Incorrect consensus, initial correct-judgment retention, and agent abstention across A–D](figures/reliability_auxiliary.png)](figures/reliability_auxiliary.png)
 
-This repository includes a **working, standard-library Python reference implementation**, not just an equation example:
+The paper uses unconstrained generation for Qwen and constrained single-option decoding for Mistral/Llama. These protocols are analyzed separately; the table is not a controlled model leaderboard.
 
-| File | Function |
-|:--|:--|
-| [`mai/tasks.py`](mai/tasks.py) | Generate balanced, exactly solvable teaching tasks and verify their answer keys with rational arithmetic. |
-| [`mai/runner.py`](mai/runner.py) | Build initial and A–D prompts, call a chat-completions endpoint, reuse initial responses across branches, and save raw responses. |
-| [`mai/contextual.py`](mai/contextual.py) | Estimate response distributions, derive the initial majority, and evaluate fixed-reference two-stage drift. |
-| [`mai/metrics.py`](mai/metrics.py) | Apply the paper's response, abstention, system vote, MAI, consensus, retention, and point-estimate rules. |
-| [`mai/__main__.py`](mai/__main__.py) | Command-line entry point for task generation, model runs, and record analysis. |
-| [`demo/mai_demo.py`](demo/mai_demo.py) | Run an offline synthetic trace through both measurement paths. |
+## Project layout
 
-Python **3.8+** is sufficient. No third-party package is required.
-
-### Run the offline example
-
-```bash
-python -m demo.mai_demo
+```text
+MAI/
+├── configs/                 # Offline, chat endpoint, and local-model settings
+├── examples/                # Illustrative source materials and saved demo output
+├── mai/
+│   ├── construction.py      # Five task-construction functions and audit trail
+│   ├── protocols.py         # Shared initial states, calibration, held-out branches
+│   ├── contextual.py        # Prior mixing, fixed references, two-stage MAI
+│   ├── interventions.py     # Hidden direction, risk head, intervention gate
+│   ├── backends.py          # Simulator and generation audit wrapper
+│   ├── local.py             # Optional local generation and decoder-block hooks
+│   ├── tasks.py             # Balanced synthetic tasks and two answer oracles
+│   ├── runner.py            # Chat adapter and A–D reliability protocol
+│   ├── metrics.py           # Parsing, abstention, consensus, retention, MAI
+│   ├── statistics.py        # Paired bootstrap, sign-flip tests, Holm correction
+│   ├── reporting.py         # HTML, Markdown, CSV, JSON exports
+│   └── pipeline.py          # Full experiment orchestration and artifact hashes
+├── data/paper/              # Transcribed published aggregates and provenance
+├── figures/                 # All nine paper figures and source manifest
+├── docs/                    # Methods, usage, results, and reproduction scope
+├── tests/                   # Protocol edge cases and full offline workflow
+└── .github/workflows/       # Python checks without model/API dependencies
 ```
 
-The trace illustrates a useful distinction: one agent's selected option stays **C**, while its MAI relative to **D** rises from **2.67 to 3.11**. The example then evaluates a five-agent A–D record. Its responses and outcomes are hand-written for teaching; they are **not observations from the study**.
+## Reproducibility
 
-To inspect the saved-record analysis path without a model endpoint:
+This is an executable **reference workflow**, with paper figures and aggregate results provided separately. The illustrative materials, agent priors, prompts, task instances, and logistic risk head are not the complete original experimental release. Running the demo will not reproduce the paper's numbers.
 
-```bash
-python -m demo.mai_demo --save-record records.jsonl
-python -m mai analyze records.jsonl
-```
+The offline workflow, statistical edge cases, mocked chat request contract, and tensor steering hook are tested. Full experiments with downloaded model weights and paid API endpoints require a configured environment and have not been validated as part of this release. The generic adapters use unconstrained generation with strict parsing. Full template-level sensitivity analysis and joint correction across multiple model runs remain outside the single-run pipeline.
 
-### Generate tasks and run a model
-
-```bash
-python -m mai generate --output tasks.json --variants 1
-python -m mai run --tasks tasks.json --output records.jsonl \
-  --base-url https://YOUR-TRUSTED-ENDPOINT/v1 --model YOUR-MODEL
-python -m mai analyze records.jsonl
-```
-
-`--variants 1` writes **15 tasks**: one unique answer at each option position for each of the three task types. These are transparent teaching examples, not the paper's 60 evaluation tasks. `run` defaults to five agents, three samples per stage, two repetitions, temperature 0.7, and distinct seeds; options are configurable through `--help`. The endpoint must support an OpenAI-compatible `/chat/completions` request. Set `MAI_API_KEY` in the environment if the endpoint requires a bearer token. `MAI_BASE_URL` and `MAI_MODEL` can replace the corresponding command-line arguments. A local HTTP endpoint is supported; remote endpoints must use HTTPS.
-
-Each JSONL line contains the task ID, answer key, preset wrong majority, raw initial and A–D responses, condition order, and generation settings. The analysis treats malformed replies as abstentions instead of silently repairing them. Keep raw records if you need to audit parsing or rerun the metrics. The analysis command pools completed task repetitions and reports **descriptive point estimates**, not confidence intervals or significance tests.
-
-## Scope and reproducibility
-
-The code makes the core protocol inspectable and lets users run their own models. It does **not** recreate the paper's original contextual task-construction agents, model-specific prior assignments, prompt-strength calibration, hidden-layer intervention, complete experimental task sets, or paired bootstrap/sign-flip inference. Consequently, running these teaching tasks will **not reproduce the published numbers**. Model endpoint behavior, decoding constraints, prompts, and task material can all change results. In the paper, Qwen used unconstrained generation; Mistral and Llama used constrained single-option decoding. This generic adapter uses unconstrained chat completions and strict parsing for every model.
-
-The study's conclusions apply to the models, tasks, and protocols evaluated. In particular, the reliability experiment uses a preset incorrect majority, and baseline accuracy is low. It does not establish a quantitative or causal relationship between MAI drift and accuracy loss. The central practical lesson is to evaluate distributional movement **alongside** retention of initially correct judgments, incorrect consensus, abstention, and final system accuracy.
+See the [paper-to-code coverage matrix](docs/reproducibility.md), [complete figure index](figures/README.md), and [artifact guide](docs/architecture.md). The main practical conclusion is to examine distributional drift alongside final accuracy, incorrect consensus, retention, and abstention.

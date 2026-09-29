@@ -1,0 +1,18 @@
+{
+  "backend": "chat",
+  "materials": "../examples/materials.json",
+  "seed": 42,
+  "agents": 5,
+  "samples": 3,
+  "repetitions": 2,
+  "prior_beta": 0.35,
+  "calibration_tasks": 4,
+  "calibration_rounds": 2,
+  "prompt_strengths": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+  "postprocess_lambda": 0.6,
+  "hidden": {"enabled": false},
+  "reliability_variants": 1,
+  "reliability_samples": 3,
+  "bootstrap_replicates": 10000,
+  "sign_flip_replicates": 10000
+}

@@ -1,0 +1,7 @@
+model,contrast,estimate_pp,ci95_low,ci95_high,holm_within_model,holm_joint_six
+Qwen2.5-7B,accuracy_loss,21.67,11.67,33.33,0.000488,0.001465
+Qwen2.5-7B,specific_protection,1.67,-1.67,5.83,0.750000,1.000000
+Mistral-7B,accuracy_loss,8.33,1.67,15.83,0.078125,0.156250
+Mistral-7B,specific_protection,-0.83,-8.33,6.67,1.000000,1.000000
+Llama-3.1-8B,accuracy_loss,9.17,2.50,16.67,0.046875,0.117188
+Llama-3.1-8B,specific_protection,10.00,0.83,19.17,0.066293,0.198880

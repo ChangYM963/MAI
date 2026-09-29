@@ -1,0 +1,59 @@
+{
+  "source": "Final English manuscript figure assets",
+  "figures": [
+    {
+      "file": "overall_framework.png",
+      "manuscript_label": "fig:overall_framework",
+      "sha256": "c6af960f6fc669b34cd276dfc67999b2d83ba2f90e23b4b265a7a5a8ce1dca03",
+      "bytes": 8187663
+    },
+    {
+      "file": "auto_pipline.png",
+      "manuscript_label": "fig:method_pipeline",
+      "sha256": "e52a331e766e967d45f1712c2737dc1997a5bd5b5f2f621fa2c10ce82735e827",
+      "bytes": 4472288
+    },
+    {
+      "file": "data.png",
+      "manuscript_label": "fig:method_task_example",
+      "sha256": "bb97bbc43c9760e6ed9e8f8b2fb80ed0561d348efa560e1f23c22a3e9692b247",
+      "bytes": 4587206
+    },
+    {
+      "file": "two_stage.png",
+      "manuscript_label": "fig:method_two_stage",
+      "sha256": "54b19845d24b93250a9129df03f003b3408f7ac2707c397b58294e873f206077",
+      "bytes": 3176515
+    },
+    {
+      "file": "herd_validation.png",
+      "manuscript_label": "fig:herding_validation",
+      "sha256": "281977a5acd6c2d87e51445046186a2b72061147cb0a01059ba4bee8cfbbd6ce",
+      "bytes": 1255993
+    },
+    {
+      "file": "external_control.png",
+      "manuscript_label": "fig:external_control",
+      "sha256": "e7a1e85b5d29666f1d3710a26424c9ab99e3068eb913257db67ed36ef095faf2",
+      "bytes": 1053378
+    },
+    {
+      "file": "internal_control.png",
+      "manuscript_label": "fig:internal_control",
+      "sha256": "04b7cc8d5b41de31259b2c9a95628ce04b94cd09b6a4eabbdd39e818a84637a2",
+      "bytes": 1240526
+    },
+    {
+      "file": "reliability_main.png",
+      "manuscript_label": "fig:reliability_main",
+      "sha256": "fd2c64838dce9c18388fac3b939ac59f054c3263dafd8ffb63beb7a32acd2bc2",
+      "bytes": 951601
+    },
+    {
+      "file": "reliability_auxiliary.png",
+      "manuscript_label": "fig:reliability_auxiliary",
+      "sha256": "c24eb477b2d38cf753418265802781c373a7b1f4697d8ce6fbd204d8c7f5c53f",
+      "bytes": 516315
+    }
+  ]
+}

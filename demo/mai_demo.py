@@ -28,7 +28,7 @@ def example_record():
               "agent-3": ["C", "C", "D"], "agent-4": ["D"] * 3, "agent-5": ["D"] * 3},
     }
     return {"task_id": task["id"], "task_type": task["type"], "repetition": 1,
-            "answer": task["answer"], "incorrect_majority": task["incorrect_majority"],
+            "answer": task["answer"], "incorrect_majority": "D",
             "initial": initial, "conditions": conditions}
 
 

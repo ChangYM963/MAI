@@ -1,0 +1,13 @@
+model,method,valid_tasks,baseline_type,conditional_mean_base,conditional_mean_control,reported_change,change_ci_low,change_ci_high,positive_percent_base,positive_percent_control
+Qwen Plus,postprocess,50,shared,0.1195,0.0482,-0.0713,-0.0913,-0.0533,66.00,68.00
+Qwen Plus,prompt,30,shared,0.1274,0.0083,-0.1191,-0.1624,-0.0790,63.33,30.00
+DeepSeek-v3,postprocess,50,shared,0.0781,0.0264,-0.0517,-0.0750,-0.0308,56.00,66.00
+DeepSeek-v3,prompt,30,shared,0.0851,0.0818,-0.0034,-0.0354,0.0264,60.00,66.67
+GLM-4.6,postprocess,50,social,0.2052,0.0821,-0.1231,-0.1460,-0.1017,96.00,96.00
+GLM-4.6,prompt,30,prompt_zero,0.0864,0.0864,0.0000,0.0000,0.0000,60.00,60.00
+Qwen2.5-7B,postprocess,50,social,0.1881,0.0752,-0.1129,-0.1454,-0.0830,54.00,54.00
+Qwen2.5-7B,prompt,30,prompt_zero,0.2617,0.3844,0.1228,0.0493,0.2010,60.00,63.33
+Mistral-7B,postprocess,49,social,0.1729,0.0692,-0.1037,-0.1846,-0.0409,42.86,42.86
+Mistral-7B,prompt,29,prompt_zero,0.0584,0.0584,0.0000,0.0000,0.0000,41.38,41.38
+Llama-3.1-8B,postprocess,50,social,0.1697,0.0679,-0.1018,-0.1228,-0.0813,84.00,84.00
+Llama-3.1-8B,prompt,30,prompt_zero,0.2777,0.2900,0.0123,-0.0462,0.0692,100.00,93.33

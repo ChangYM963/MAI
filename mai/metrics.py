@@ -9,7 +9,7 @@ from . import OPTIONS
 def parse_option(text):
     """Only a single uppercase A-E after whitespace trimming is valid."""
     value = text.strip() if isinstance(text, str) else ""
-    return value if value in OPTIONS else None
+    return value if len(value) == 1 and value in OPTIONS else None
 
 
 def agent_decision(raw_responses):
@@ -32,7 +32,7 @@ def empirical_distribution(raw_responses):
 
 def mai(distribution, majority):
     """MAI in [0, 4] for ordered options A-E and a fixed reference."""
-    if majority not in OPTIONS or set(distribution) != set(OPTIONS):
+    if majority not in tuple(OPTIONS) or set(distribution) != set(OPTIONS):
         raise ValueError("Expected majority A-E and a distribution over exactly A-E")
     values = list(distribution.values())
     if any(not isfinite(p) or p < 0 for p in values) or not isclose(sum(values), 1, abs_tol=1e-9):
@@ -47,13 +47,15 @@ def shrink_distribution(initial, subsequent, strength):
     """Post-processing p0 + (1-strength)(p1-p0), with strength in [0, 1]."""
     if not 0 <= strength <= 1:
         raise ValueError("strength must be in [0, 1]")
+    mai(initial, "A")
+    mai(subsequent, "A")
     return {letter: initial[letter] + (1 - strength) * (subsequent[letter] - initial[letter])
             for letter in OPTIONS}
 
 
 def system_decision(agent_choices):
     """Strict majority among *all scheduled* agents; abstentions stay in denominator."""
-    counts = Counter(choice for choice in agent_choices if choice is not None and choice in OPTIONS)
+    counts = Counter(choice for choice in agent_choices if choice in tuple(OPTIONS))
     return next((letter for letter in OPTIONS if counts[letter] > len(agent_choices) / 2), None)
 
 
@@ -61,7 +63,7 @@ def evaluate_record(record):
     """Analyze one task repetition with shared initial responses and A-D branches."""
     answer = record["answer"]
     majority = record["incorrect_majority"]
-    if answer not in OPTIONS or majority not in OPTIONS or answer == majority:
+    if answer not in tuple(OPTIONS) or majority not in tuple(OPTIONS) or answer == majority:
         raise ValueError("The external majority must be a wrong A-E option")
     initial = record["initial"]
     branches = record["conditions"]
@@ -70,6 +72,9 @@ def evaluate_record(record):
     ids = set(initial)
     if any(set(branches[c]) != ids for c in "ABCD"):
         raise ValueError("Each branch must contain the same scheduled agents")
+    batches = [samples for stage in (initial, *branches.values()) for samples in stage.values()]
+    if any(not isinstance(samples, list) or not samples for samples in batches) or len({len(samples) for samples in batches}) != 1:
+        raise ValueError("All scheduled agents and stages require the same nonempty sample count")
     initial_choices = {agent: agent_decision(samples) for agent, samples in initial.items()}
     initial_correct = sum(choice == answer for choice in initial_choices.values())
     minority = [agent for agent, choice in initial_choices.items()
@@ -116,6 +121,8 @@ def summarize(records):
     if not evaluations:
         raise ValueError("No records to summarize")
     summary = {"task_repetitions": len(evaluations), "conditions": {}}
+    invalid_drift_tasks = {item["task_id"] for item in evaluations
+                           if any(item["conditions"][c]["minority_drift"] is None for c in "ABCD")}
     for condition in "ABCD":
         rows = [item["conditions"][condition] for item in evaluations]
         initial_correct = sum(item["initial_correct"] for item in evaluations)
@@ -128,7 +135,8 @@ def summarize(records):
             "agent_abstention": sum(row["agent_abstentions"] for row in rows) / sum(row["agent_count"] for row in rows),
             "minority_switch_rate": (sum(row["minority_switches"] for row in rows) / minority if minority else None),
         }
-        valid_drift = [row["minority_drift"] for row in rows if row["minority_drift"] is not None]
+        valid_drift = [item["conditions"][condition]["minority_drift"] for item in evaluations
+                       if item["task_id"] not in invalid_drift_tasks]
         summary["conditions"][condition]["mean_minority_drift"] = (
             sum(valid_drift) / len(valid_drift) if valid_drift else None)
         summary["conditions"][condition]["valid_drift_repetitions"] = len(valid_drift)

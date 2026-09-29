@@ -3,6 +3,7 @@
 import json
 import random
 from urllib import error, request
+from urllib.parse import urlsplit
 
 from . import OPTIONS
 from .metrics import agent_decision
@@ -20,14 +21,14 @@ def task_text(task):
     return f"{task['question']}\nAvailable investment fractions: {options}."
 
 
-def initial_prompt(task):
-    return task_text(task) + "\nChoose independently. Reply with exactly one uppercase letter A, B, C, D, or E."
+def initial_prompt(task, agent="agent-1"):
+    return f"Task ID: {task['id']}\nAgent ID: {agent}\n" + task_text(task) + "\nChoose independently. Reply with exactly one uppercase letter A, B, C, D, or E."
 
 
-def second_prompt(task, initial_choice, condition):
-    if condition not in "ABCD":
+def second_prompt(task, initial_choice, condition, agent="agent-1"):
+    if condition not in tuple("ABCD"):
         raise ValueError("Unknown condition")
-    message = task_text(task)
+    message = f"Task ID: {task['id']}\nAgent ID: {agent}\n" + task_text(task)
     message += f"\nYour initial choice: {initial_choice or 'no unique valid choice'}."
     if condition in "BD":
         wrong = task["incorrect_majority"]
@@ -41,24 +42,31 @@ def second_prompt(task, initial_choice, condition):
 class ChatBackend:
     """One independent chat completion per sample; supply a trusted endpoint and key."""
 
-    def __init__(self, base_url, model, api_key, temperature=0.7, timeout=60):
-        if not base_url.startswith(("https://", "http://localhost", "http://127.0.0.1")):
+    def __init__(self, base_url, model, api_key, temperature=0.7, timeout=60, max_tokens=16, send_seed=True):
+        parts = urlsplit(base_url)
+        if parts.scheme != "https" and not (parts.scheme == "http" and parts.hostname in ("localhost", "127.0.0.1", "::1")):
             raise ValueError("Use HTTPS or a local HTTP endpoint")
+        if parts.username or parts.password or parts.query or parts.fragment:
+            raise ValueError("Endpoint URLs must not contain embedded credentials, query parameters, or fragments")
         self.url = base_url.rstrip("/") + "/chat/completions"
         self.model = model
         self.api_key = api_key
         self.temperature = temperature
         self.timeout = timeout
+        self.max_tokens = max_tokens
+        self.send_seed = send_seed
 
     def generate(self, prompt, seed):
-        payload = json.dumps({
+        body = {
             "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
             "temperature": self.temperature,
             "top_p": 1,
-            "max_tokens": 16,
-            "seed": seed,
-        }).encode("utf-8")
+            "max_tokens": self.max_tokens,
+        }
+        if self.send_seed:
+            body["seed"] = seed
+        payload = json.dumps(body).encode("utf-8")
         headers = {"Content-Type": "application/json"}
         if self.api_key:
             headers["Authorization"] = "Bearer " + self.api_key
@@ -85,7 +93,7 @@ def run_task(task, backend, agents=5, samples=3, repetitions=2, seed=42):
     rng = random.Random(seed)
     ids = [f"agent-{i + 1}" for i in range(agents)]
     for repetition in range(1, repetitions + 1):
-        initial = {agent: [backend.generate(initial_prompt(task), rng.randrange(2**31))
+        initial = {agent: [backend.generate(initial_prompt(task, agent), rng.randrange(2**31))
                            for _ in range(samples)] for agent in ids}
         choices = {agent: agent_decision(initial[agent]) for agent in ids}
         conditions = {}
@@ -93,7 +101,7 @@ def run_task(task, backend, agents=5, samples=3, repetitions=2, seed=42):
         rng.shuffle(order)
         for condition in order:
             conditions[condition] = {
-                agent: [backend.generate(second_prompt(task, choices[agent], condition), rng.randrange(2**31))
+                agent: [backend.generate(second_prompt(task, choices[agent], condition, agent), rng.randrange(2**31))
                         for _ in range(samples)] for agent in ids
             }
         yield {

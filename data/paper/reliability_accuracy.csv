@@ -1,0 +1,13 @@
+model,decoding,condition,accuracy_percent,ci95_low,ci95_high,tasks,repetitions
+Qwen2.5-7B,unconstrained,A,21.67,11.67,33.33,60,2
+Qwen2.5-7B,unconstrained,B,0.00,0.00,0.00,60,2
+Qwen2.5-7B,unconstrained,C,22.50,12.50,33.33,60,2
+Qwen2.5-7B,unconstrained,D,2.50,0.00,6.67,60,2
+Mistral-7B,constrained,A,19.17,10.00,29.17,60,2
+Mistral-7B,constrained,B,10.83,4.17,18.33,60,2
+Mistral-7B,constrained,C,22.50,12.50,33.33,60,2
+Mistral-7B,constrained,D,13.33,5.83,21.67,60,2
+Llama-3.1-8B,constrained,A,17.50,8.33,27.50,60,2
+Llama-3.1-8B,constrained,B,8.33,2.50,15.00,60,2
+Llama-3.1-8B,constrained,C,9.17,4.17,15.00,60,2
+Llama-3.1-8B,constrained,D,10.00,4.17,16.67,60,2

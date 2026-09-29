@@ -1,0 +1,966 @@
+{
+  "schema": "mai_run_v2",
+  "backend": "simulation",
+  "model": "illustrative-simulator-v1",
+  "seed": 42,
+  "provenance": "simulated responses and hidden features",
+  "sample_calls": 5700,
+  "construction": {
+    "sources": 14,
+    "accepted": 12,
+    "flagged": 1,
+    "rejected": 1,
+    "calibration_tasks": 4,
+    "evaluation_tasks": 8
+  },
+  "prompt_calibration": {
+    "selected_strength": 0.6,
+    "grid": [
+      {
+        "strength": 0.0,
+        "round_conditional_positive_means": [
+          0.7908333333333333,
+          0.9840277777777777
+        ],
+        "score": 0.8874305555555555
+      },
+      {
+        "strength": 0.2,
+        "round_conditional_positive_means": [
+          0.6175,
+          0.6590277777777778
+        ],
+        "score": 0.638263888888889
+      },
+      {
+        "strength": 0.4,
+        "round_conditional_positive_means": [
+          1.0129166666666667,
+          0.8648611111111111
+        ],
+        "score": 0.9388888888888889
+      },
+      {
+        "strength": 0.6,
+        "round_conditional_positive_means": [
+          0.6229166666666667,
+          0.43513888888888896
+        ],
+        "score": 0.5290277777777779
+      },
+      {
+        "strength": 0.8,
+        "round_conditional_positive_means": [
+          0.6788888888888889,
+          0.7751851851851853
+        ],
+        "score": 0.7270370370370371
+      },
+      {
+        "strength": 1.0,
+        "round_conditional_positive_means": [
+          0.7005555555555555,
+          0.3845833333333333
+        ],
+        "score": 0.5425694444444444
+      }
+    ],
+    "common_valid_tasks": [
+      "commodity-06",
+      "liquidity-03",
+      "property-09",
+      "valuation-08"
+    ],
+    "criterion": "mean of round-wise conditional mean positive drift; epsilon=0; lower strength breaks ties",
+    "status": "selected"
+  },
+  "contextual": {
+    "social": {
+      "valid_tasks": 8,
+      "D": 0.8797569444444444,
+      "H_plus": 0.8797569444444444,
+      "positive_proportion": 1.0,
+      "conditional_positive_mean": 0.8797569444444444
+    },
+    "prompt_zero": {
+      "valid_tasks": 8,
+      "D": 0.8978125000000001,
+      "H_plus": 0.8978125000000001,
+      "positive_proportion": 1.0,
+      "conditional_positive_mean": 0.8978125000000001
+    },
+    "prompt_selected": {
+      "valid_tasks": 8,
+      "D": 0.5353472222222222,
+      "H_plus": 0.5353472222222222,
+      "positive_proportion": 1.0,
+      "conditional_positive_mean": 0.5353472222222222
+    },
+    "postprocess": {
+      "valid_tasks": 8,
+      "D": 0.3519027777777778,
+      "H_plus": 0.3519027777777778,
+      "positive_proportion": 1.0,
+      "conditional_positive_mean": 0.3519027777777778
+    },
+    "hidden": {
+      "valid_tasks": 8,
+      "D": 0.3362847222222222,
+      "H_plus": 0.3444097222222222,
+      "positive_proportion": 0.875,
+      "conditional_positive_mean": 0.3936111111111111
+    }
+  },
+  "contextual_inference": {
+    "paired_tasks": 8,
+    "comparisons": {
+      "hidden": {
+        "H_plus_gain": 0.5353472222222222,
+        "baseline": "social",
+        "intervention": "hidden",
+        "ci95": [
+          0.4463446180555556,
+          0.6269904513888889
+        ]
+      },
+      "postprocess": {
+        "H_plus_gain": 0.5278541666666667,
+        "baseline": "social",
+        "intervention": "postprocess",
+        "ci95": [
+          0.44225052083333344,
+          0.6104583333333334
+        ]
+      },
+      "prompt_selected": {
+        "H_plus_gain": 0.3444097222222222,
+        "baseline": "social",
+        "intervention": "prompt_selected",
+        "ci95": [
+          0.1931154513888889,
+          0.5051041666666665
+        ]
+      },
+      "prompt_zero": {
+        "H_plus_gain": -0.01805555555555552,
+        "baseline": "social",
+        "intervention": "prompt_zero",
+        "ci95": [
+          -0.31872569444444443,
+          0.2573368055555556
+        ]
+      },
+      "prompt_incremental": {
+        "baseline": "prompt_zero",
+        "intervention": "prompt_selected",
+        "H_plus_gain": 0.36246527777777776,
+        "ci95": [
+          0.1155329861111111,
+          0.6193506944444443
+        ]
+      }
+    },
+    "note": "Exploratory scenario-paired intervals, not the paper's full template sensitivity analysis"
+  },
+  "hidden_audit": {
+    "available": true,
+    "minority_observations": 50,
+    "triggered": 50,
+    "changed_after_trigger": 47
+  },
+  "reliability": {
+    "tasks": 15,
+    "strata": {
+      "liquidity_budget": 5,
+      "loss_budget": 5,
+      "quadratic_utility": 5
+    },
+    "bootstrap_replicates": 1000,
+    "unit": "task; paired branches and repetitions retained",
+    "metrics": {
+      "A.accuracy": {
+        "estimate": 0.06666666666666667,
+        "ci95": [
+          0.0,
+          0.16666666666666666
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "A.wrong_consensus": {
+        "estimate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "A.retention": {
+        "estimate": 0.7931034482758621,
+        "ci95": [
+          0.6111111111111112,
+          0.9090909090909091
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "A.agent_abstention": {
+        "estimate": 0.18,
+        "ci95": [
+          0.12666666666666668,
+          0.23333333333333334
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "B.accuracy": {
+        "estimate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "B.wrong_consensus": {
+        "estimate": 0.7666666666666667,
+        "ci95": [
+          0.6333333333333333,
+          0.9
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "B.retention": {
+        "estimate": 0.13793103448275862,
+        "ci95": [
+          0.038461538461538464,
+          0.23342105263157886
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "B.agent_abstention": {
+        "estimate": 0.09333333333333334,
+        "ci95": [
+          0.05333333333333334,
+          0.13349999999999984
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "C.accuracy": {
+        "estimate": 0.1,
+        "ci95": [
+          0.0,
+          0.23333333333333334
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "C.wrong_consensus": {
+        "estimate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "C.retention": {
+        "estimate": 0.6551724137931034,
+        "ci95": [
+          0.47368421052631576,
+          0.8334459459459459
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "C.agent_abstention": {
+        "estimate": 0.24666666666666667,
+        "ci95": [
+          0.18,
+          0.3
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "D.accuracy": {
+        "estimate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "D.wrong_consensus": {
+        "estimate": 0.13333333333333333,
+        "ci95": [
+          0.03333333333333333,
+          0.23333333333333334
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "D.retention": {
+        "estimate": 0.3103448275862069,
+        "ci95": [
+          0.17227011494252875,
+          0.46153846153846156
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "D.agent_abstention": {
+        "estimate": 0.21333333333333335,
+        "ci95": [
+          0.15333333333333332,
+          0.26666666666666666
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "accuracy_loss": {
+        "estimate": 0.06666666666666667,
+        "ci95": [
+          0.0,
+          0.16666666666666666
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "direct_recovery": {
+        "estimate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "general_verification": {
+        "estimate": 0.03333333333333334,
+        "ci95": [
+          -0.06666666666666668,
+          0.16666666666666669
+        ],
+        "valid_bootstrap_replicates": 1000
+      },
+      "specific_protection": {
+        "estimate": -0.03333333333333334,
+        "ci95": [
+          -0.16666666666666669,
+          0.06666666666666668
+        ],
+        "valid_bootstrap_replicates": 1000
+      }
+    },
+    "tests": {
+      "accuracy_loss": {
+        "p": 0.5,
+        "method": "exact_two_sided",
+        "nonzero_tasks": 2,
+        "holm_two_primary": 1.0
+      },
+      "specific_protection": {
+        "p": 1.0,
+        "method": "exact_two_sided",
+        "nonzero_tasks": 2,
+        "holm_two_primary": 1.0
+      }
+    },
+    "common_valid_mai_tasks": 15,
+    "common_valid_mai": {
+      "A": -0.08932098765432098,
+      "B": 1.3530246913580242,
+      "C": -0.028209876543209892,
+      "D": 0.8486419753086418
+    },
+    "task_rows": [
+      {
+        "id": "liquidity_budget-001",
+        "type": "liquidity_budget",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 2,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": -0.22222222222222224
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.5,
+            "retained": 1,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": 1.222222222222222
+          },
+          "C": {
+            "accuracy": 1.0,
+            "wrong_consensus": 0.0,
+            "retained": 3,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": -5.551115123125783e-17
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": 1.5555555555555556
+          }
+        },
+        "initial_correct": 3,
+        "common_valid_mai": true
+      },
+      {
+        "id": "liquidity_budget-002",
+        "type": "liquidity_budget",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 2,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": -0.11111111111111109
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.5,
+            "retained": 0,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": 1.3333333333333333
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 3,
+            "agent_count": 10,
+            "drift": -0.3333333333333332
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 5,
+            "agent_count": 10,
+            "drift": 0.6111111111111109
+          }
+        },
+        "initial_correct": 2,
+        "common_valid_mai": true
+      },
+      {
+        "id": "liquidity_budget-003",
+        "type": "liquidity_budget",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": -0.2222222222222221
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 1.0,
+            "retained": 0,
+            "abstentions": 0,
+            "agent_count": 10,
+            "drift": 0.33333333333333315
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 4,
+            "agent_count": 10,
+            "drift": 0.11111111111111105
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.5,
+            "retained": 0,
+            "abstentions": 0,
+            "agent_count": 10,
+            "drift": 0.33333333333333326
+          }
+        },
+        "initial_correct": 1,
+        "common_valid_mai": true
+      },
+      {
+        "id": "liquidity_budget-004",
+        "type": "liquidity_budget",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": -0.31111111111111106
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 1.0,
+            "retained": 0,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": 1.9777777777777779
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": 0.22222222222222218
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": 1.1777777777777776
+          }
+        },
+        "initial_correct": 1,
+        "common_valid_mai": true
+      },
+      {
+        "id": "liquidity_budget-005",
+        "type": "liquidity_budget",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 3,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": 0.06666666666666664
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.5,
+            "retained": 1,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": 1.2444444444444445
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 2,
+            "abstentions": 4,
+            "agent_count": 10,
+            "drift": 0.1333333333333333
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 3,
+            "abstentions": 3,
+            "agent_count": 10,
+            "drift": 0.411111111111111
+          }
+        },
+        "initial_correct": 4,
+        "common_valid_mai": true
+      },
+      {
+        "id": "loss_budget-001",
+        "type": "loss_budget",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 4,
+            "agent_count": 10,
+            "drift": -0.37037037037037035
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 1.0,
+            "retained": 0,
+            "abstentions": 0,
+            "agent_count": 10,
+            "drift": 1.925925925925926
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": -0.14814814814814814
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.5,
+            "retained": 0,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": 1.8518518518518519
+          }
+        },
+        "initial_correct": 1,
+        "common_valid_mai": true
+      },
+      {
+        "id": "loss_budget-002",
+        "type": "loss_budget",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": -0.5416666666666665
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.5,
+            "retained": 0,
+            "abstentions": 3,
+            "agent_count": 10,
+            "drift": 0.8194444444444444
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 4,
+            "agent_count": 10,
+            "drift": -0.625
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 3,
+            "agent_count": 10,
+            "drift": 0.24999999999999997
+          }
+        },
+        "initial_correct": 2,
+        "common_valid_mai": true
+      },
+      {
+        "id": "loss_budget-003",
+        "type": "loss_budget",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": 0.27777777777777773
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.5,
+            "retained": 0,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": 1.222222222222222
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": 0.055555555555555455
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 3,
+            "agent_count": 10,
+            "drift": 0.6666666666666665
+          }
+        },
+        "initial_correct": 1,
+        "common_valid_mai": true
+      },
+      {
+        "id": "loss_budget-004",
+        "type": "loss_budget",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 3,
+            "abstentions": 3,
+            "agent_count": 10,
+            "drift": 0.11111111111111108
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 1.0,
+            "retained": 0,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": 2.2222222222222223
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": 0.6666666666666666
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 3,
+            "agent_count": 10,
+            "drift": 1.0
+          }
+        },
+        "initial_correct": 3,
+        "common_valid_mai": true
+      },
+      {
+        "id": "loss_budget-005",
+        "type": "loss_budget",
+        "conditions": {
+          "A": {
+            "accuracy": 0.5,
+            "wrong_consensus": 0.0,
+            "retained": 4,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": -0.11111111111111116
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 1.0,
+            "retained": 1,
+            "abstentions": 0,
+            "agent_count": 10,
+            "drift": 1.6111111111111112
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 4,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": -0.6388888888888888
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": 1.0555555555555554
+          }
+        },
+        "initial_correct": 4,
+        "common_valid_mai": true
+      },
+      {
+        "id": "quadratic_utility-001",
+        "type": "quadratic_utility",
+        "conditions": {
+          "A": {
+            "accuracy": 0.5,
+            "wrong_consensus": 0.0,
+            "retained": 5,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": 0.17777777777777778
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.5,
+            "retained": 0,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": 2.022222222222222
+          },
+          "C": {
+            "accuracy": 0.5,
+            "wrong_consensus": 0.0,
+            "retained": 4,
+            "abstentions": 3,
+            "agent_count": 10,
+            "drift": 0.24444444444444444
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.5,
+            "retained": 1,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": 0.9555555555555555
+          }
+        },
+        "initial_correct": 5,
+        "common_valid_mai": true
+      },
+      {
+        "id": "quadratic_utility-002",
+        "type": "quadratic_utility",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 2,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": -5.551115123125783e-17
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.5,
+            "retained": 1,
+            "abstentions": 0,
+            "agent_count": 10,
+            "drift": 1.3333333333333333
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 1,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": 0.055555555555555594
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.5,
+            "retained": 0,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": 0.8611111111111109
+          }
+        },
+        "initial_correct": 2,
+        "common_valid_mai": true
+      },
+      {
+        "id": "quadratic_utility-003",
+        "type": "quadratic_utility",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 3,
+            "agent_count": 10,
+            "drift": 0.3055555555555556
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 1.0,
+            "retained": 0,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": 1.388888888888889
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 4,
+            "agent_count": 10,
+            "drift": 0.24999999999999986
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": 0.1666666666666665
+          }
+        },
+        "initial_correct": 0,
+        "common_valid_mai": true
+      },
+      {
+        "id": "quadratic_utility-004",
+        "type": "quadratic_utility",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 4,
+            "agent_count": 10,
+            "drift": -0.3888888888888888
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 1.0,
+            "retained": 0,
+            "abstentions": 0,
+            "agent_count": 10,
+            "drift": 1.1944444444444446
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 1,
+            "agent_count": 10,
+            "drift": -0.1944444444444444
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": 0.7222222222222223
+          }
+        },
+        "initial_correct": 0,
+        "common_valid_mai": true
+      },
+      {
+        "id": "quadratic_utility-005",
+        "type": "quadratic_utility",
+        "conditions": {
+          "A": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 0,
+            "agent_count": 10,
+            "drift": -2.220446049250313e-16
+          },
+          "B": {
+            "accuracy": 0.0,
+            "wrong_consensus": 1.0,
+            "retained": 0,
+            "abstentions": 0,
+            "agent_count": 10,
+            "drift": 0.4444444444444442
+          },
+          "C": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 4,
+            "agent_count": 10,
+            "drift": -0.22222222222222232
+          },
+          "D": {
+            "accuracy": 0.0,
+            "wrong_consensus": 0.0,
+            "retained": 0,
+            "abstentions": 2,
+            "agent_count": 10,
+            "drift": 1.111111111111111
+          }
+        },
+        "initial_correct": 0,
+        "common_valid_mai": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "source_manuscript": "ANOR_final.tex",
+  "source_sha256": "2c034058e7d934df2ae64a4b97f52e3f88c754faadfe6817293eb80bcef150b9",
+  "kind": "rounded aggregate transcription",
+  "raw_observations_included": false,
+  "tables": {
+    "initial_validation.csv": "tab:herding_validation",
+    "external_interventions.csv": "tab:external_control_reported",
+    "internal_interventions.csv": "tab:internal_control_reported (upper panel)",
+    "reliability_accuracy.csv": "tab:reliability_conditions",
+    "reliability_effects.csv": "tab:reliability_primary_effects"
+  }
+}
